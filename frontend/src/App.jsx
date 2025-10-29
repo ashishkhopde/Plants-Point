@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Plants from './pages/Plants';
+import Footer from './components/Footer';
 
 export default function App() {
 
@@ -18,6 +19,7 @@ export default function App() {
           Page Not Found
         </h2>} />
       </Routes>
+      <Footer/>
     </BrowserRouter>
     </div>
   )

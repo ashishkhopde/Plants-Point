@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Leaf, ShoppingCart, Search } from "lucide-react";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { ArrowRight } from "lucide-react";
+
 
 export default function Home() {
 
+    const navigate = useNavigate();
     let [plantData, setPlantData] = useState([]);
 
     useEffect(() => {
@@ -28,7 +32,8 @@ export default function Home() {
                         Explore a wide variety of plants to brighten your home, purify the air,
                         and create a calm, natural space.
                     </p>
-                    <button className="mt-6 px-6 py-3 bg-green-700 text-white rounded-lg shadow-md hover:bg-green-800">
+                    <button onClick={() => { navigate('/Plants'); scrollTo(0, 0) }}
+                        className="mt-6 px-6 py-3 bg-green-700 text-white rounded-lg shadow-md hover:bg-green-800 cursor-pointer">
                         Shop Now
                     </button>
                 </div>
@@ -59,7 +64,7 @@ export default function Home() {
                                 <img
                                     src={plant.plantImage}
                                     alt={plant.plantName}
-                                    className="rounded-lg mb-4 w-full h-60 object-cover hover:scale-105 transition-transform duration-300"
+                                    className="rounded-lg mb-4 w-full h-60 object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
                                 />
                                 <h4 className="text-xl font-semibold text-green-900 mb-2">
                                     {plant.plantName}
@@ -77,34 +82,37 @@ export default function Home() {
                                     </span>
                                 </div>
 
-                                <button className="mt-auto w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2.5 rounded-lg font-medium hover:bg-green-800 transition-colors duration-300">
+                                <button className="mt-auto w-full flex items-center justify-center gap-2 bg-green-700 text-white py-2.5 rounded-lg font-medium hover:bg-green-800 transition-colors duration-300 cursor-pointer">
                                     Add to Cart
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-5 w-5"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                    >
-                                        <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            strokeWidth={2}
-                                            d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13l-1.2 6h12.4L17 13H7z"
-                                        />
-                                    </svg>
+                                    <ShoppingCart className="h-5 w-5" />
                                 </button>
+
                             </div>
 
                         ) : null
                     )}
+
+
+                    <div className="col-span-full flex justify-center mt-8">
+                        <button
+                            onClick={() => {
+                                navigate("/plants");
+                                scrollTo(0, 0);
+                            }}
+                            className="px-8 py-3 bg-green-700 text-white text-lg font-medium rounded-full shadow-md 
+               hover:bg-green-800 hover:shadow-lg transform hover:-translate-y-1 
+               transition-all duration-300 flex items-center gap-2"
+                        >
+                            View More
+                            <ArrowRight className="w-5 h-5" />
+                        </button>
+                    </div>
+
+
                 </div>
             </section>
 
-            {/* Footer */}
-            <footer className="text-center py-6 bg-green-700 text-white mt-10">
-                © {new Date().getFullYear()} GreenLeaf Nursery. All rights reserved.
-            </footer>
+
         </div>
     );
 }
