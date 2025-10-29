@@ -3,7 +3,7 @@ import cors from 'cors';
 import 'dotenv/config.js';
 
 import ConnectDB from './config/DB.js';
-import plantRoutes from './routes/plantRoutes.js';
+import plantRoutes from './routes/plant.routes.js';
 
 const app = express();
 app.use(cors());

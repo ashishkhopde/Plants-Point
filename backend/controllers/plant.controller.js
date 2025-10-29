@@ -1,16 +1,13 @@
-import { Router } from "express";
-import PlantModel from "../models/plantModel.js";
+import PlantModel from "../models/plant.model.js";
 
-const router = Router();
-
-router.get('/list', async (req, res) => {
+export const getPlants = async (req, res) => {
     res.json({
         status: "success",
         plantData: await PlantModel.find()
     });
-});
+}
 
-router.post('/add', async (req, res) => {
+export const addPlant = async (req, res) => {
 
     let data = req.body;
 
@@ -22,9 +19,9 @@ router.post('/add', async (req, res) => {
         message: "Plant added successfully",
         newPlant: plant
     });
-});
+}
 
-router.delete('/delete/:id', async (req, res) => {
+export const deletePlant = async (req, res) => {
     let id = req.params.id;
 
     await PlantModel.findByIdAndDelete(id);
@@ -33,9 +30,9 @@ router.delete('/delete/:id', async (req, res) => {
         status: "success",
         message: "Plant deleted successfully",
     });
-});
+}
 
-router.put('/edit/:id', async (req, res)=>{
+export const editPlant = async (req, res)=>{
     let id = req.params.id;
     let data = req.body;
 
@@ -46,6 +43,4 @@ router.put('/edit/:id', async (req, res)=>{
         message: "Item was edited successfully",
         editData: editData
     });
-});
-
-export default router;
+}
