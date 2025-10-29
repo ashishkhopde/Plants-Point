@@ -11,6 +11,10 @@ export const addPlant = async (req, res) => {
 
     let data = req.body;
 
+    if (data.isMain === true) {
+        await PlantModel.updateMany({}, { isMain: false });
+    }
+
     let plant = new PlantModel(data);
     await plant.save();
 
@@ -32,9 +36,13 @@ export const deletePlant = async (req, res) => {
     });
 }
 
-export const editPlant = async (req, res)=>{
+export const editPlant = async (req, res) => {
     let id = req.params.id;
     let data = req.body;
+
+    if (data.isMain === true) {
+        await PlantModel.updateMany({}, { isMain: false });
+    }
 
     let editData = await PlantModel.findByIdAndUpdate(id, data);
 

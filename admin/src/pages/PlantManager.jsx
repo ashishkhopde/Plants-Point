@@ -4,22 +4,24 @@ import Card from "../components/Card";
 import Loader from "../components/Loader";
 
 export default function PlantManager() {
-    let [isLoading, setIsLoading] = useState(true);
-    let [isAdding, setIsAdding] = useState(false);
-    let [plantsData, setPlants] = useState([]);
-    let [editId, setEditId] = useState(null);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isAdding, setIsAdding] = useState(false);
+    const [plantsData, setPlants] = useState([]);
+    const [editId, setEditId] = useState(null);
 
-    let [formData, setFormData] = useState({
+    const [formData, setFormData] = useState({
         plantName: "",
         plantImage: "",
         plantDescription: "",
-        plantPrice: ""
+        plantPrice: "",
+        isMain: false
     });
 
+    // Fetch Data
     useEffect(() => {
         async function getData() {
             try {
-                let res = await axios.get("http://localhost:5500/api/plants/list");
+                const res = await axios.get("http://localhost:5500/api/plants/list");
                 setPlants(res.data.plantData);
                 setIsLoading(false);
             } catch (err) {
@@ -29,10 +31,16 @@ export default function PlantManager() {
         getData();
     }, [isAdding]);
 
+    // Handle input changes
     function handleChange(e) {
-        setFormData({ ...formData, [e.target.name]: e.target.value });
+        const { name, value, type, checked } = e.target;
+        setFormData({
+            ...formData,
+            [name]: type === "checkbox" ? checked : value
+        });
     }
 
+    // Submit form
     async function handleSubmit(e) {
         e.preventDefault();
 
@@ -48,35 +56,24 @@ export default function PlantManager() {
 
         try {
             if (editId) {
-                let Res = await axios.put(
+                const Res = await axios.put(
                     `http://localhost:5500/api/plants/edit/${editId}`,
                     formData
                 );
                 if (Res.data.status === "success") {
                     alert("🌿 Plant updated successfully!");
                     setIsAdding(!isAdding);
-                    setEditId(null);
-                    setFormData({
-                        plantName: "",
-                        plantImage: "",
-                        plantDescription: "",
-                        plantPrice: ""
-                    });
+                    handleReset();
                 }
             } else {
-                let Res = await axios.post(
+                const Res = await axios.post(
                     "http://localhost:5500/api/plants/add",
                     formData
                 );
                 if (Res.data.status === "success") {
                     alert("✅ " + Res.data.message);
                     setIsAdding(!isAdding);
-                    setFormData({
-                        plantName: "",
-                        plantImage: "",
-                        plantDescription: "",
-                        plantPrice: ""
-                    });
+                    handleReset();
                 }
             }
         } catch (err) {
@@ -85,10 +82,11 @@ export default function PlantManager() {
         }
     }
 
+    // Delete
     async function handleDelete(id) {
-        let confirmation = window.confirm("Are you sure you want to delete this plant?");
+        const confirmation = window.confirm("Are you sure you want to delete this plant?");
         if (confirmation) {
-            let Res = await axios.delete(`http://localhost:5500/api/plants/delete/${id}`);
+            const Res = await axios.delete(`http://localhost:5500/api/plants/delete/${id}`);
             setIsAdding(!isAdding);
             if (Res.data.status === "success") {
                 alert("🗑️ " + Res.data.message);
@@ -96,23 +94,27 @@ export default function PlantManager() {
         }
     }
 
+    // Edit
     function handleEdit(plant) {
         setEditId(plant._id);
         setFormData({
             plantName: plant.plantName,
             plantImage: plant.plantImage,
             plantDescription: plant.plantDescription,
-            plantPrice: plant.plantPrice
+            plantPrice: plant.plantPrice,
+            isMain: plant.isMain || false
         });
         window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
+    // Reset
     function handleReset() {
         setFormData({
             plantName: "",
             plantImage: "",
             plantDescription: "",
-            plantPrice: ""
+            plantPrice: "",
+            isMain: false
         });
         setEditId(null);
     }
@@ -129,11 +131,9 @@ export default function PlantManager() {
             <main className="container mx-auto px-4 mt-10 flex flex-col items-center">
                 {/* Form */}
                 <section className="w-full max-w-lg bg-white shadow-xl rounded-2xl p-8 border border-green-100">
-
                     <h3 className="text-2xl font-bold text-green-700 mb-6 text-center">
                         {editId ? "✏️ Edit Plant" : "➕ Add a New Plant"}
                     </h3>
-
 
                     <form onSubmit={handleSubmit} className="space-y-5">
                         <div>
@@ -184,11 +184,26 @@ export default function PlantManager() {
                             />
                         </div>
 
+                        {/* ✅ New Field for isMain */}
+                        <div className="flex items-center gap-3">
+                            <input
+                                type="checkbox"
+                                name="isMain"
+                                checked={formData.isMain}
+                                onChange={handleChange}
+                                className="w-5 h-5 accent-green-600"
+                            />
+                            <label className="text-gray-700 font-medium">
+                                Mark as Main Plant 🌿
+                            </label>
+                        </div>
 
                         <div className="flex gap-3">
                             <button
                                 type="submit"
-                                className={`flex-1 text-white font-semibold py-2.5 rounded-lg shadow-md transition-all transform hover:scale-105 ${editId ? "bg-yellow-500 hover:bg-yellow-600" : "bg-green-600 hover:bg-green-700"
+                                className={`flex-1 text-white font-semibold py-2.5 rounded-lg shadow-md transition-all transform hover:scale-105 ${editId
+                                    ? "bg-yellow-500 hover:bg-yellow-600"
+                                    : "bg-green-600 hover:bg-green-700"
                                     }`}
                             >
                                 {editId ? "Update Plant" : "Add Plant"}
@@ -205,7 +220,7 @@ export default function PlantManager() {
                     </form>
                 </section>
 
-
+                {/* Plants Collection */}
                 <section className="my-12 w-full max-w-6xl">
                     <h2 className="text-3xl font-bold text-green-700 text-center mb-8">
                         🌿 Plants Collection
@@ -214,15 +229,21 @@ export default function PlantManager() {
                     {isLoading ? (
                         <Loader />
                     ) : plantsData.length === 0 ? (
-                        <p className="text-center text-gray-500 py-10">No plants available. Add one! 🌱</p>
+                        <p className="text-center text-gray-500 py-10">
+                            No plants available. Add one! 🌱
+                        </p>
                     ) : (
                         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-8">
                             {plantsData.map((plant) => (
-                                <Card handleDelete={handleDelete} handleEdit={handleEdit} plant={plant} />
+                                <Card
+                                    key={plant._id}
+                                    handleDelete={handleDelete}
+                                    handleEdit={handleEdit}
+                                    plant={plant}
+                                />
                             ))}
                         </div>
                     )}
-
                 </section>
             </main>
         </div>

@@ -33,7 +33,7 @@ export default function Home() {
                     </button>
                 </div>
                 <img
-                    src="https://images.unsplash.com/photo-1501004318641-b39e6451bec6?auto=format&fit=crop&w=600&q=80"
+                    src={plantData.find(plant => plant.isMain === true)?.plantImage}
                     alt="Plants"
                     className="rounded-2xl shadow-lg mt-10 md:mt-0 md:ml-10"
                     width={450}
