@@ -12,26 +12,39 @@ export default function Signup() {
 
   const handleSignup = async (e) => {
     e.preventDefault();
+
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/user/sign`, {
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/signup`, {
         name,
         avatar,
         email,
         password,
       });
 
-      if (res.data.accessToken) {
+      if (res.data.accessToken && res.data.refreshToken) {
+        // ✅ Store tokens in localStorage
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
+
+        // ✅ Fetch user details using the access token
+        const userRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/user`, {
+          headers: {
+            Authorization: `Bearer ${res.data.accessToken}`,
+          },
+        });
+
+        console.log("User details:", userRes.data.user);
+        localStorage.setItem("user", JSON.stringify(userRes.data.user));
         navigate("/plants");
       } else {
         setErrorMsg(res.data.message || "Signup failed");
       }
     } catch (err) {
-      setErrorMsg("Something went wrong. Try again!");
       console.error(err);
+      setErrorMsg("Something went wrong. Try again!");
     }
   };
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white">

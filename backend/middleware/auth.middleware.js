@@ -26,6 +26,8 @@ export const authMiddleware = (req, res, next) => {
             return res.res.status(401).json({ message: "Unauthorized" });
         }
 
+        req.user = {id: decoded.id};
+
         next();
     } catch (err) {
         console.error("JWT verification failed:", err);

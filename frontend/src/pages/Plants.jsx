@@ -12,7 +12,7 @@ export default function Plants() {
     async function getData() {
       try {
         let res = await axios.get(`${import.meta.env.VITE_BASE_URL}/plants/list`);
-        console.log(res.data);
+        // console.log(res.data);
         setPlants(res.data.plantData);
         setIsLoading(false);
       } catch (err) {
@@ -50,7 +50,7 @@ export default function Plants() {
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-10">
               {plantsData.map((plant, index) => (
-                <PlantCard index={index} plant={plant}/>
+                <PlantCard index={index} plant={plant} key={index}/>
               ))}
             </div>
           )}

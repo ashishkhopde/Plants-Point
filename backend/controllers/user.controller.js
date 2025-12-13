@@ -7,35 +7,34 @@ export const userSignup = async (req, res) => {
     try {
         const { name, avatar, email, password } = req.body;
 
-        const user = await userModel.findOne({ email });
-
-        if (user) {
-            return res.json({ message: "User already exist!" });
+        const existingUser = await userModel.findOne({ email });
+        if (existingUser) {
+            return res.json({ message: "User already exists!" });
         }
 
-        const newUser = await userModel.create({
-            name, avatar, email, password
-        });
+        const newUser = await userModel.create({ name, avatar, email, password });
 
-        const accessToken = generateAccessToken(newUser._id);
-        const refreshToken = generateRefreshToken(newUser._id);
+        const accessToken = await generateAccessToken(newUser._id);
+        const refreshToken = await generateRefreshToken(newUser._id);
 
-        await userModel.updateOne({ _id: newUser._id }, { $set: { refreshToken: refreshToken } });
+        newUser.refreshToken = refreshToken;
+        await newUser.save();
 
         return res.status(200).json({
-            message: "User register successfully",
+            message: "User registered successfully",
             accessToken,
-            refreshToken
+            refreshToken,
         });
 
     } catch (error) {
-        console.log("User register err: ", error);
-        res.json({
-            message: "User register err",
-            error
+        console.error("User register err: ", error);
+        return res.status(500).json({
+            message: "User register error",
+            error: error.message,
         });
     }
-}
+};
+
 
 export const userLogin = async (req, res) => {
     try {
@@ -55,7 +54,7 @@ export const userLogin = async (req, res) => {
         const refreshToken = generateRefreshToken(user._id);
 
         user.refreshToken = refreshToken;
-        user.save();
+        await user.save();
 
         return res.status(200).json({
             message: "User login successfully",
@@ -76,6 +75,8 @@ export const tokenGenerator = async (req, res) => {
     try {
 
         const { refreshToken } = req.body;
+
+        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
         if (refreshToken.exp < Date.now() / 1000) {
             return res.json({ message: "Refresh token expired" });
@@ -104,15 +105,17 @@ export const tokenGenerator = async (req, res) => {
 export const getUser = async (req, res) => {
     try {
 
-        const { refreshToken } = req.body;
+        const userId = req.user?.id;
 
-        const user = await userModel.findOne({ refreshToken }).select("-password");
+        if (!userId) return res.status(401).json({ message: "Unauthorized" });
 
-        if (!user) {
-            return res.json({ message: "User not found" });
-        }
+        const user = await userModel.findById(userId).select("-password -refreshToken");
+        if (!user) return res.status(404).json({ message: "User not found" });
 
-        return res.json({ message: "Get user details successfully", user });
+        return res.status(200).json({
+            message: "Get user details successfully",
+            user,
+        });
 
     } catch (error) {
         console.log("Get user err: ", error);

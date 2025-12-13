@@ -11,14 +11,24 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5500/api/users/login", {
+      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/login`, {
         email,
-        password,
+        password
       });
 
       if (res.data.accessToken) {
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
+
+        const userRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/user`, {
+          headers: {
+            Authorization: `Bearer ${res.data.accessToken}`,
+          },
+        });
+
+        console.log("User details:", userRes.data.user);
+        localStorage.setItem("user", JSON.stringify(userRes.data.user));
+
         navigate("/plants");
       } else {
         setErrorMsg(res.data.message || "Login failed");
