@@ -12,7 +12,7 @@ export default function Home() {
 
     useEffect(() => {
         async function getData() {
-            let Res = await axios.get("http://localhost:5500/api/plants/list");
+            let Res = await axios.get(`${import.meta.env.VITE_BASE_URL}/plants/list`);
             setPlantData(Res.data.plantData);
         }
 

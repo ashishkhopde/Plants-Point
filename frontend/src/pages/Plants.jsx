@@ -11,7 +11,7 @@ export default function Plants() {
   useEffect(() => {
     async function getData() {
       try {
-        let res = await axios.get("http://localhost:5500/api/plants/list");
+        let res = await axios.get(`${import.meta.env.VITE_BASE_URL}/plants/list`);
         console.log(res.data);
         setPlants(res.data.plantData);
         setIsLoading(false);

@@ -5,6 +5,8 @@ import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Plants from './pages/Plants';
 import Footer from './components/Footer';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 export default function App() {
 
@@ -15,6 +17,8 @@ export default function App() {
       <Routes>
         <Route path='/' element={<Home />} />
         <Route path='/plants' element={<Plants />} />
+        <Route path='/login' element={<Login />} />
+        <Route path='/signup' element={<Signup />} />
         <Route path="/*" element={<h2>
           Page Not Found
         </h2>} />
