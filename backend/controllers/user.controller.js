@@ -1,5 +1,5 @@
-import userModel from "../models/user.model";
-import { generateAccessToken, generateRefreshToken } from "../utils/genterateTokens";
+import userModel from "../models/user.model.js";
+import { generateAccessToken, generateRefreshToken } from "../utils/genterateTokens.js";
 
 import bcrypt from "bcrypt";
 
