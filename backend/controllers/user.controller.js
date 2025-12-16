@@ -5,11 +5,15 @@ import bcrypt from "bcrypt";
 
 export const userSignup = async (req, res) => {
     try {
-        const { name, avatar, email, password } = req.body;
+        let { name, avatar, email, password } = req.body;
 
         const existingUser = await userModel.findOne({ email });
         if (existingUser) {
             return res.json({ message: "User already exists!" });
+        }
+
+        if (avatar==="") {
+            avatar = "https://e7.pngegg.com/pngimages/84/165/png-clipart-united-states-avatar-organization-information-user-avatar-service-computer-wallpaper.png";
         }
 
         const newUser = await userModel.create({ name, avatar, email, password });

@@ -8,7 +8,7 @@ const userSchema = new Schema({
     },
     avatar: {
         type: String,
-        default: "https://e7.pngegg.com/pngimages/456/700/png-clipart-computer-icons-avatar-user-profile-avatar-heroes-logo.png"
+        default: "https://e7.pngegg.com/pngimages/84/165/png-clipart-united-states-avatar-organization-information-user-avatar-service-computer-wallpaper.png"
     },
     email: {
         type: String,
