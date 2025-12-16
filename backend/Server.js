@@ -6,6 +6,7 @@ import 'dotenv/config.js';
 import ConnectDB from './config/DB.js';
 import plantRoutes from './routes/plant.routes.js';
 import userRoutes from './routes/user.routes.js';
+import adminRoutes from './routes/admin.routes.js';
 
 const app = express();
 app.use(cors());
@@ -16,7 +17,8 @@ ConnectDB();
 
 
 app.use('/api/plants', plantRoutes);
-app.use('/api/user', userRoutes)
+app.use('/api/user', userRoutes);
+app.use('/api/admin', adminRoutes);
 
 app.listen(process.env.PORT, ()=>{
     console.log("listening....");

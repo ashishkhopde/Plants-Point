@@ -17,6 +17,15 @@ export default function PlantManager() {
         isMain: false
     });
 
+    const token = localStorage.getItem("accessToken");
+
+    // Axios config with Authorization header
+    const axiosConfig = {
+        headers: {
+            Authorization: `Bearer ${token}`
+        }
+    };
+
     // Fetch Data
     useEffect(() => {
         async function getData() {
@@ -58,7 +67,8 @@ export default function PlantManager() {
             if (editId) {
                 const Res = await axios.put(
                     `http://localhost:5500/api/plants/edit/${editId}`,
-                    formData
+                    formData,
+                    axiosConfig
                 );
                 if (Res.data.status === "success") {
                     alert("🌿 Plant updated successfully!");
@@ -68,7 +78,8 @@ export default function PlantManager() {
             } else {
                 const Res = await axios.post(
                     "http://localhost:5500/api/plants/add",
-                    formData
+                    formData,
+                    axiosConfig
                 );
                 if (Res.data.status === "success") {
                     alert("✅ " + Res.data.message);
@@ -86,7 +97,7 @@ export default function PlantManager() {
     async function handleDelete(id) {
         const confirmation = window.confirm("Are you sure you want to delete this plant?");
         if (confirmation) {
-            const Res = await axios.delete(`http://localhost:5500/api/plants/delete/${id}`);
+            const Res = await axios.delete(`http://localhost:5500/api/plants/delete/${id}`, axiosConfig);
             setIsAdding(!isAdding);
             if (Res.data.status === "success") {
                 alert("🗑️ " + Res.data.message);
@@ -122,11 +133,23 @@ export default function PlantManager() {
     return (
         <div className="min-h-screen bg-gradient-to-br from-green-50 via-white to-green-100 flex flex-col items-center">
             {/* Header */}
-            <header className="p-6 w-full bg-white shadow-md sticky top-0 z-10 border-b border-green-200">
-                <h2 className="text-4xl font-extrabold text-green-700 text-center tracking-wide">
+            <header className="p-6 w-full bg-white shadow-md sticky top-0 z-10 border-b border-green-200 flex justify-between items-center">
+                <h2 className="text-4xl font-extrabold text-green-700 tracking-wide">
                     🌱 Plant Manager
                 </h2>
+
+                {/* Logout Button */}
+                <button
+                    onClick={() => {
+                        localStorage.removeItem("accessToken"); // remove token
+                        window.location.reload(); // reload or redirect to login page
+                    }}
+                    className="bg-red-500 text-white px-4 py-1 rounded-md shadow hover:bg-red-600 transition"
+                >
+                    Logout
+                </button>
             </header>
+
 
             <main className="container mx-auto px-4 mt-10 flex flex-col items-center">
                 {/* Form */}
