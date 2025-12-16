@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import API from "../api/axios";
 
 export default function Login() {
   const [email, setEmail] = useState("");
@@ -11,22 +11,13 @@ export default function Login() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/login`, {
-        email,
-        password
-      });
+      const res = await API.post("/user/login", { email, password });
 
       if (res.data.accessToken) {
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
 
-        const userRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/user`, {
-          headers: {
-            Authorization: `Bearer ${res.data.accessToken}`,
-          },
-        });
-
-        console.log("User details:", userRes.data.user);
+        const userRes = await API.get("/user");
         localStorage.setItem("user", JSON.stringify(userRes.data.user));
 
         navigate("/plants");
@@ -67,9 +58,7 @@ export default function Login() {
             required
           />
 
-          {errorMsg && (
-            <p className="text-center text-red-500 text-sm">{errorMsg}</p>
-          )}
+          {errorMsg && <p className="text-center text-red-500 text-sm">{errorMsg}</p>}
 
           <button
             type="submit"

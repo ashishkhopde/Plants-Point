@@ -11,8 +11,8 @@ import {
 import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false); // Mobile menu toggle
-  const [showDropdown, setShowDropdown] = useState(false); // Desktop avatar dropdown
+  const [isOpen, setIsOpen] = useState(false); 
+  const [showDropdown, setShowDropdown] = useState(false);
   const navigate = useNavigate();
 
   const isLoggedIn = !!localStorage.getItem("accessToken");

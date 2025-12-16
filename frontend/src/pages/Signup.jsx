@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import axios from "axios";
 import { useNavigate, Link } from "react-router-dom";
+import API from "../api/axios"; // 👈 centralized Axios instance with interceptors
 
 export default function Signup() {
   const [name, setName] = useState("");
@@ -8,43 +8,46 @@ export default function Signup() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignup = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setErrorMsg("");
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_BASE_URL}/user/signup`, {
+      const res = await API.post("/user/signup", {
         name,
         avatar,
         email,
         password,
       });
 
+      // ✅ Store access & refresh tokens
       if (res.data.accessToken && res.data.refreshToken) {
-        // ✅ Store tokens in localStorage
         localStorage.setItem("accessToken", res.data.accessToken);
         localStorage.setItem("refreshToken", res.data.refreshToken);
 
-        // ✅ Fetch user details using the access token
-        const userRes = await axios.get(`${import.meta.env.VITE_BASE_URL}/user`, {
-          headers: {
-            Authorization: `Bearer ${res.data.accessToken}`,
-          },
-        });
+        try {
+          // ✅ Fetch and store user info
+          const userRes = await API.get("/user");
+          localStorage.setItem("user", JSON.stringify(userRes.data.user));
+        } catch (userErr) {
+          console.warn("Could not fetch user:", userErr);
+        }
 
-        console.log("User details:", userRes.data.user);
-        localStorage.setItem("user", JSON.stringify(userRes.data.user));
         navigate("/plants");
       } else {
         setErrorMsg(res.data.message || "Signup failed");
       }
     } catch (err) {
-      console.error(err);
+      console.error("Signup error:", err);
       setErrorMsg("Something went wrong. Try again!");
+    } finally {
+      setLoading(false);
     }
   };
-
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-green-50 to-white">
@@ -95,15 +98,23 @@ export default function Signup() {
 
           <button
             type="submit"
-            className="w-full bg-green-700 text-white py-3 rounded-lg font-medium hover:bg-green-800 transition-all"
+            disabled={loading}
+            className={`w-full py-3 rounded-lg font-medium transition-all ${
+              loading
+                ? "bg-green-400 cursor-not-allowed text-white"
+                : "bg-green-700 hover:bg-green-800 text-white"
+            }`}
           >
-            Sign Up
+            {loading ? "Signing up..." : "Sign Up"}
           </button>
         </form>
 
         <p className="text-center text-gray-600 mt-5">
           Already have an account?{" "}
-          <Link to="/login" className="text-green-700 font-semibold hover:underline">
+          <Link
+            to="/login"
+            className="text-green-700 font-semibold hover:underline"
+          >
             Log In
           </Link>
         </p>

@@ -72,35 +72,29 @@ export const userLogin = async (req, res) => {
 }
 
 export const tokenGenerator = async (req, res) => {
-    try {
+  try {
+    const { refreshToken } = req.body;
+    if (!refreshToken) return res.status(400).json({ message: "Refresh token required" });
 
-        const { refreshToken } = req.body;
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-        const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+    const user = await userModel.findOne({ refreshToken });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-        if (refreshToken.exp < Date.now() / 1000) {
-            return res.json({ message: "Refresh token expired" });
-        }
+    const accessToken = generateAccessToken(user._id);
 
-        const user = await userModel.findOne({ refreshToken: refreshToken });
-
-        if (!user) {
-            return res.json({
-                message: "User not found"
-            });
-        }
-
-        const accessToken = generateAccessToken(user._id);
-
-        return res.status(200).json({
-            message: "Token generated successfully",
-            accessToken
-        });
-    } catch (error) {
-        console.log("Generate token err: ", error);
-        return res.json({ message: "Generate token err: ", error });
+    return res.status(200).json({
+      message: "New access token generated successfully",
+      accessToken,
+    });
+  } catch (error) {
+    console.error("Generate token error:", error);
+    if (error.name === "TokenExpiredError") {
+      return res.status(401).json({ message: "Refresh token expired" });
     }
-}
+    return res.status(401).json({ message: "Invalid refresh token" });
+  }
+};
 
 export const getUser = async (req, res) => {
     try {
